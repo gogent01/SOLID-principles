@@ -66,3 +66,30 @@ const ford = new Car(v6Engine, summerTires);
 const winterTires = new Tires('winter');
 ford.replaceTires(winterTires);
 ```
+
+
+## Closures
+
+Closure is a concept of keeping a local variable accessible even after a function execution IF one calls a child function of the executed function using this local variable. Closures have to be allowed in a language (JS, Ruby). If closures are not allowed (C, though there are ways to mimic them through pointers), the variable is blown away from memory and is not accessible from the child function. Usually it is function arguments that are subject to closure.
+
+Example 1 (functional programming):
+```
+function makeTag(openTag, closeTag) {
+  return function(content) {
+    return openTag + content + closeTag;
+  };
+}
+
+const h1 = makeTag('<h1>', '<\h1>');
+const italic = makeTag('<i>', '<\i>');
+console.log(h1(italic('Hello world!'))); // <h1><i>Hello world!<\i><h1>
+```
+
+Example 2 (callbacks):
+```
+function filterMales (employee) { return employee.gender === 'male'; };
+
+function fetchSelectedEmployees(databaseUrl, filterFunction) {
+  fetchEmployees(databaseUrl).then(employees => employees.filter(filterFunction));
+}
+```
