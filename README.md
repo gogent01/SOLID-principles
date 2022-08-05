@@ -11,7 +11,95 @@ More on each of them below.
 
 ## Single Responsibility Principle (SRP)
 
+Originally stated as:
+> A class should have only one reason to change.[^1]
+[^1]: Robert C. Martin. (2003). *Agile Software Development, Principles, Patterns, and Practices*
 
+The "reason" here has the same meaning as an "actor". In other words *one class should be used by only one actor*.
+
+This principle helps to prevent complications when using same function as a part of different functions required by different actors. Consider the following example:
+```
+class Employee {
+  employeeData: EmployeeData;
+  
+  constructor(employeeData: EmployeeData) {
+    this.employeeData = employeeData;
+  }
+  
+  calculateWagePerWeek(): number {
+    return this.workHoursPerWeek() * this.employeeData.hourlyWage;
+  }
+  
+  calculateSnacksPerWeek(): number {
+    return this.workHoursPerWeek() * 0.5;
+  }
+  
+  workHoursPerWeek(): number {
+    return this.employeeData.hoursWorkedLastMonth / 4.5;
+  }
+}
+```
+Both `calculateWagePerWeek()` and `calculateSnacksPerWeek()` use the same method of calculating work hours per week. But these functions are used by different actors! The actor for `calculateWagePerWeek()` is the accounting department and the actor for `calculateSnacksPerWeek()` is the purchase department. Suppose the accounting department decides to calculate overtime hours twice as regular hours. A developer should probably change the code of `workHoursPerWeek()` to account for overtime, e.g.:
+```
+workHoursPerWeek(): number {
+  const hoursPerWeek = this.employeeData.hoursWorkedLastMonth / 4.5;
+  if (hoursPerWeek > 40) {
+    return 40 + (hoursPerWeek - 40)*2;
+  }
+  return hoursPerWeek;
+}
+```
+But this change would break the calculation of snacks for purchases department, as the average number of snacks per hour does not change with overtime! The correct solution is to split the original class into two separate ones and hide them behind an `EmployeeFacade`. The employee data may be separated also as a data structure or included in the `EmployeeFacade`.
+```
+class EmployeeFacade {
+  calculateWagePerWeek(employeeData: EmployeeData): number {
+    const wageCalculator = new WageCalculator(employeeData: EmployeeData);
+    return wageCalculator.calculateWagePerWeek();
+  }
+  
+  calculateSnacksPerWeek(): number {
+    const snacksCalculator = new SnacksCalculator(employeeData: EmployeeData);
+    return snacksCalculator.calculateSnacksPerWeek();
+  }
+}
+
+class WageCalculator {
+  constructor(employeeData: EmployeeData) {
+    this.employeeData = employeeData;
+  }
+  
+  calculateWagePerWeek(): number {
+    return this.workHoursPerWeek() * this.employeeData.hourlyWage;
+  }
+  
+  workHoursPerWeek(): number {
+    const hoursPerWeek = this.employeeData.hoursWorkedLastMonth / 4.5;
+    if (hoursPerWeek > 40) {
+      return 40 + (hoursPerWeek - 40)*2;
+    }
+    return hoursPerWeek;
+  }
+}
+
+class SnacksCalculator {
+  constructor(employeeData: EmployeeData) {
+    this.employeeData = employeeData;
+  }
+  
+  calculateSnacksPerWeek(): number {
+    return this.workHoursPerWeek() * 0.5;
+  }
+  
+  workHoursPerWeek(): number {
+    return this.employeeData.hoursWorkedLastMonth / 4.5;
+  }
+}
+
+const employeeData = new EmployeeData();
+const employee = new EmployeeFacade();
+const wagePerWeek = employee.calculateWagePerWeek(employeeData);
+const snacksPerWeek = employee.calculateSnacksPerWeek(employeeData);
+```
 
 ## Open/Closed Principle (OCP)
 
@@ -26,7 +114,6 @@ More on each of them below.
 
 
 ## Dependency Inversion Principle (DIP)
-
 
 
 # Other stuff
