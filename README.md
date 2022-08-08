@@ -183,25 +183,25 @@ function fetchSelectedEmployees(databaseUrl, filterFunction) {
 
 
 ## JS: [[Prototype]], Prototype, __proto__ and `new`
-[[Prototype]] is a set of an object's actual properties and methods. __proto__ is a combined getter/setter of [[Prototype]]. One should avoid changing [[Prototype]] through __proto__ as this operation has very poor performance.
+`[[Prototype]]` is a set of an object's actual properties and methods. `__proto__` is a combined getter/setter of `[[Prototype]]`. One should avoid changing `[[Prototype]]` through `__proto__` as this operation has very poor performance.
 
-Any JS object inherits its [[Prototype]] from a constructor's function Prototype. Prototype is a set of properties and methods that is copied into [[Prototype]] of objects created by constructor functions. Only functions can have Prototypes.
+Any JS object inherits its `[[Prototype]]` from a constructor's function `Prototype`. `Prototype` is a set of properties and methods that is copied into `[[Prototype]]` of objects created by constructor functions. Only functions can have Prototypes.
 
 When a function is invoked with the `new` keyword, 5 things happen:
-1. An empty object ({}) is created.
-2. Its [[Prototype]] is assigned a Prototype of the invoked function.
+1. An empty object (`{}`) is created.
+2. Its `[[Prototype]]` is assigned a Prototype of the invoked function.
 3. `this` property becomes bound to the object itself.
 4. Constructor function is executed upon the object (using the freshly bound `this`).
 5. The object is returned.
 
 In other words, the action of `new` is equivalent to this function (assuming `New(A, arg1, arg2)` is the same as `new A(arg1, arg2)`:
 ```
-function New(constructor) {
+function New(func) {
     var res = {};
     if (func.prototype !== null) {
         res.__proto__ = func.prototype;
     }
-    var ret = constructor.apply(res, Array.prototype.slice.call(arguments, 1));
+    var ret = func.apply(res, Array.prototype.slice.call(arguments, 1));
     if ((typeof ret === "object" || typeof ret === "function") && ret !== null) {
         return ret;
     }
