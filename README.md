@@ -119,7 +119,7 @@ Originally stated as:
 [^3]: Barbara Liskov, Jeanette Wing. (1994). *A behavioral notion of subtyping.*
 
 In other words:
-> "Functions that use pointers or references to base classes must be able to use objects of derived classes without knowing it".
+> Functions that use pointers or references to base classes must be able to use objects of derived classes without knowing it.
 
 In other words, all subclasses should use the same interface in order to be able to interchange different realizations of a component. But not only that. Any function arguments and returns should always stay the same for any uses of a class family.
 
