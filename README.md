@@ -13,7 +13,7 @@ More on each of them below.
 
 Originally stated as:
 > A class should have only one reason to change.[^1]
-[^1]: Robert C. Martin. (2003). *Agile Software Development, Principles, Patterns, and Practices*
+[^1]: Robert C. Martin. (2003). *Agile Software Development, Principles, Patterns, and Practices.*
 
 The "reason" here has the same meaning as an "actor". In other words *one class should be used by only one actor*.
 
@@ -103,10 +103,25 @@ const snacksPerWeek = employee.calculateSnacksPerWeek(employeeData);
 
 ## Open/Closed Principle (OCP)
 
+Originally stated as:
+> Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification.[^2]
+[^2]: Bertrand Mayer. (1988). *Object-Oriented Software Construction.*
+
+The classes and components should be constructed to be open for extension (through inhertiance and polymorphism), but closed for modification. To achive this one should separate logical levels of an application. Higher levels should be protected from changes in lower levels, which is done by making lower levels depend on the higher ones. Dependency inversion (through interfaces) may be required to abstract the details of lower levels realization from business logic. 
+
+Lower levels may also be protects from the higher ones by using interfaces. This is helpful when a lower level component does not use a higher level component directly.
 
 
 ## Liskov Substitution Principle (LSP)
 
+Originally stated as:
+> Subtype Requirement: Let ϕ(x) be a property provable about objects x of type T. Then ϕ(y) should be true for objects y of type S where S is a subtype of T.[^3]
+[^3]: Barbara Liskov, Jeanette Wing. (1994). *A behavioral notion of subtyping.*
+
+In other words:
+> "Functions that use pointers or references to base classes must be able to use objects of derived classes without knowing it".
+
+In other words, all subclasses should use the same interface in order to be able to interchange different realizations of a component. But not only that. Any function arguments and returns should always stay the same for any uses of a class family.
 
 
 ## Interface Segregation Principle (ISP)
