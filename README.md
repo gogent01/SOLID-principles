@@ -126,7 +126,99 @@ In other words, all subclasses should use the same interface in order to be able
 
 ## Interface Segregation Principle (ISP)
 
+Originally stated as:
+> No client should be forced to depend on methods it does not use.[^4]
+[^4]: Robert Martin
 
+Stated in other words, one should not extend existing interfaces with new methods. Instead, one should create new interface and to implement both of them in new classes, if required. Thus the classes using only the implementation of original interface would not depend on methods they do not use.
+
+*Let no components depend on methods they do not use.*
+
+An example violating ISP:
+```
+interface Printer {
+  abstract print(document: Document): void;
+}
+
+
+class CanonPrinter implements Printer {
+  print(document: Document): void { 
+    // ... 
+  };
+}
+
+
+interface MultiFunctionPrinter {
+  abstract print(document: Document): void;
+  abstract copy(): void;
+  abstract scan(): Document;
+}
+
+
+class CanonMFU implements MultiFunctionPrinter {
+  print(document: Document): void { 
+    // ... 
+  };
+  copy(): void { 
+    // ... 
+  };
+  scan(): Document { 
+    // ... 
+  };
+}
+
+class CanonPrinterAndCopyingMachine implements MultiFunctionPrinter {
+  print(document: Document): void { 
+    // ... 
+  };
+  copy(): void { 
+    // ... 
+  };
+}
+```
+
+Instead, one should have created three interfaces for printing, copying and scanning functionalities and implement only required interfaces:
+```
+interface Printer {
+  abstract print(document: Document): void;
+}
+
+interface CopyingMachine {
+  abstract copy(): void;
+}
+
+interface Scanner {
+  abstract scan(): Document;
+}
+
+
+class CanonPrinter implements Printer {
+  print(document: Document): void { 
+    // ... 
+  };
+}
+
+class CanonMFU implements Printer, CopyingMachine, Scanner {
+  print(document: Document): void { 
+    // ... 
+  };
+  copy(): void { 
+    // ... 
+  };
+  scan(): Document { 
+    // ... 
+  };
+}
+
+class CanonPrinterAndCopyingMachine implements Printer, CopyingMachine {
+  print(document: Document): void { 
+    // ... 
+  };
+  copy(): void { 
+    // ... 
+  };
+}
+```
 
 ## Dependency Inversion Principle (DIP)
 
