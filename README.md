@@ -144,7 +144,7 @@ interface Printer {
 class CanonPrinter implements Printer {
   print(document: Document): void { 
     // ... 
-  };
+  }
 }
 
 
@@ -158,10 +158,12 @@ interface MultiFunctionPrinter {
 class CanonMFU implements MultiFunctionPrinter {
   print(document: Document): void { 
     // ... 
-  };
+  }
+  
   copy(): void { 
     // ... 
-  };
+  }
+  
   scan(): Document { 
     // ... 
   };
@@ -170,10 +172,11 @@ class CanonMFU implements MultiFunctionPrinter {
 class CanonPrinterAndCopyingMachine implements MultiFunctionPrinter {
   print(document: Document): void { 
     // ... 
-  };
+  }
+  
   copy(): void { 
     // ... 
-  };
+  }
 }
 ```
 
@@ -195,28 +198,31 @@ interface Scanner {
 class CanonPrinter implements Printer {
   print(document: Document): void { 
     // ... 
-  };
+  }
 }
 
 class CanonMFU implements Printer, CopyingMachine, Scanner {
   print(document: Document): void { 
     // ... 
-  };
+  }
+  
   copy(): void { 
     // ... 
-  };
+  }
+  
   scan(): Document { 
     // ... 
-  };
+  }
 }
 
 class CanonPrinterAndCopyingMachine implements Printer, CopyingMachine {
   print(document: Document): void { 
     // ... 
-  };
+  }
+  
   copy(): void { 
     // ... 
-  };
+  }
 }
 ```
 
