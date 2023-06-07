@@ -1,6 +1,6 @@
-# What is a SOLID programming?
+# What is SOLID programming?
 
-SOLID is an abbreviation of five principles that make complex object-oriented projects easy to maintain and extend. These principles are a subset of even more principles formulated by Robert Martin (Design Principles and Design Patterns). The abbreviation may be deciphered as:
+SOLID is an abbreviation of five principles that make complex object-oriented projects easier to maintain and extend. These principles are a subset of even more principles formulated by Robert Martin (Design Principles and Design Patterns). The abbreviation may be deciphered as:
 - S — Single Responsibility Principle (SRP)
 - O — Open/Closed Principle (OCP)
 - L — Liskov Substitution Principle (LSP)
@@ -17,7 +17,7 @@ Originally stated as:
 
 The "reason" here has the same meaning as an "actor". In other words *one class should be used by only one actor*.
 
-This principle helps to prevent complications when using same function as a part of different functions required by different actors. Consider the following example:
+This principle separates zones of responsibility for different actors, so no change would happen without any actor's notice. Consider a following example:
 ```
 class Employee {
   employeeData: EmployeeData;
@@ -39,31 +39,40 @@ class Employee {
   }
 }
 ```
-Both `calculateWagePerWeek()` and `calculateSnacksPerWeek()` use the same method of calculating work hours per week. But these functions are used by different actors! The actor for `calculateWagePerWeek()` is the accounting department and the actor for `calculateSnacksPerWeek()` is the purchase department. Suppose the accounting department decides to calculate overtime hours twice as regular hours. A developer should probably change the code of `workHoursPerWeek()` to account for overtime, e.g.:
+Both `calculateWagePerWeek()` and `calculateSnacksPerWeek()` use the same method of calculating work hours per week. But these functions are used by different actors! The actor for `calculateWagePerWeek()` is the accounting department and the actor for `calculateSnacksPerWeek()` is the purchase department. Let's suppose that the accounting department decides to calculate overtime hours not as regular ones, but twice as high. A developer should  change the code of `workHoursPerWeek()` to account for overtime, e.g.:
 ```
 workHoursPerWeek(): number {
-  const hoursPerWeek = this.employeeData.hoursWorkedLastMonth / 4.5;
+  const WEEKS_IN_MONTH = 4.5;
+  const hoursPerWeek = this.employeeData.hoursWorkedLastMonth / WEEKS_IN_MONTH;
   if (hoursPerWeek > 40) {
-    return 40 + (hoursPerWeek - 40)*2;
+    return 40 + (hoursPerWeek - 40) * 2;
   }
   return hoursPerWeek;
 }
 ```
-But this change would break the calculation of snacks for purchases department, as the average number of snacks per hour does not change with overtime! The correct solution is to split the original class into two separate ones and hide them behind an `EmployeeFacade`. The employee data may be separated also as a data structure or included in the `EmployeeFacade`.
+But this change is going to break the calculation of snacks for purchases department, as the average number of snacks per hour does not change with overtime! The correct solution is to split the original class into two separate ones and hide them behind an `EmployeeFacade`. The employee data may also be separated as a data structure or included in the `EmployeeFacade`.
 ```
 class EmployeeFacade {
-  calculateWagePerWeek(employeeData: EmployeeData): number {
-    const wageCalculator = new WageCalculator(employeeData: EmployeeData);
+  employeeData: EmployeeData;
+  
+  constructor(employeeData: EmployeeData) {
+    this.employeeData = employeeData;
+  }
+
+  calculateWagePerWeek(): number {
+    const wageCalculator = new WageCalculator(this.employeeData);
     return wageCalculator.calculateWagePerWeek();
   }
   
   calculateSnacksPerWeek(): number {
-    const snacksCalculator = new SnacksCalculator(employeeData: EmployeeData);
+    const snacksCalculator = new SnacksCalculator(this.employeeData);
     return snacksCalculator.calculateSnacksPerWeek();
   }
 }
 
 class WageCalculator {
+  employeeData: EmployeeData;
+  
   constructor(employeeData: EmployeeData) {
     this.employeeData = employeeData;
   }
@@ -82,6 +91,8 @@ class WageCalculator {
 }
 
 class SnacksCalculator {
+  employeeData: EmployeeData;
+  
   constructor(employeeData: EmployeeData) {
     this.employeeData = employeeData;
   }
@@ -96,9 +107,9 @@ class SnacksCalculator {
 }
 
 const employeeData = new EmployeeData();
-const employee = new EmployeeFacade();
-const wagePerWeek = employee.calculateWagePerWeek(employeeData);
-const snacksPerWeek = employee.calculateSnacksPerWeek(employeeData);
+const employee = new EmployeeFacade(employeeData);
+const wagePerWeek = employee.calculateWagePerWeek();
+const snacksPerWeek = employee.calculateSnacksPerWeek();
 ```
 
 ## Open/Closed Principle (OCP)
@@ -107,10 +118,64 @@ Originally stated as:
 > Software entities (classes, modules, functions, etc.) should be open for extension, but closed for modification.[^2]
 [^2]: Bertrand Mayer. (1988). *Object-Oriented Software Construction.*
 
-The classes and components should be constructed to be open for extension (through inhertiance and polymorphism), but closed for modification. To achive this one should separate logical levels of an application. Higher levels should be protected from changes in lower levels, which is done by making lower levels depend on the higher ones. Dependency inversion (through interfaces) may be required to abstract the details of lower levels realization from business logic. 
+A module is said to be open when one can add additional component extension (through inhertiance and polymorphism). A module is said to be closed when it is available for use by other modules (thus one cannot change this module's implementation to prevent unnoticed changes for other actors). To achive OCP one should separate logical levels of an application. Higher levels should be protected from changes in lower levels, which is done by making lower levels depend on the higher ones. Dependency inversion (through interfaces) may be required to abstract the details of lower levels realization from business logic. Lower levels may also be protected from the higher ones by using interfaces. This is helpful when a lower level component does not use a higher level component directly.
 
-Lower levels may also be protects from the higher ones by using interfaces. This is helpful when a lower level component does not use a higher level component directly.
+An example of OCP is below. Here one can add any more phrases and more formatters by implementing corresponding interfaces. During this addition earlier implementations do not require any changes.
+```
+interface Phrase {
+  text: string;
+  accept: (visitor: Visitor) => void;
+}
 
+class Greeting implements Phrase {
+  text: string = 'Good morning!';
+  
+  accept(visitor: Visitor): void {
+    visitor.visitGreeting(this);
+  }
+}
+
+class Goodbye implements Phrase {
+  text: string = 'See you later!';
+  
+  accept(visitor: Visitor): void {
+    visitor.visitGoodbye(this);
+  }
+}
+
+interface FormattingVisitor {
+  visitGreeting: (greeting: Greeting) => string;
+  visitGoodbye: (goodbye: Goodbye) => string;
+}
+
+class HTMLFormatter implements FormattingVisitor {
+  visitGreeting(greeting: Greeting): string {
+    return `<p style="font-style: italic;">${greeting.text}</p>`;
+  }
+  
+  visitGoodbye(goodbye: Goodbye): string {
+    return `<p style="font-weight: bold;">${goodbye.text}</p>`;
+  }
+}
+
+class JSONFormatter implements FormattingVisitor {
+  visitGreeting(greeting: Greeting): string {
+    return `{ "text": "${greeting.text}", "style": "italic" }`;
+  }
+  
+  visitGoodbye(goodbye: Goodbye): string {
+    return `{ "text": "${goodbye.text}", "style": "bold" }`;
+  }
+}
+
+const greeting = new Greeting();
+const goodbye = new Goodbye();
+const htmlFormatter = new HTMLFormatter();
+const jsonFormatter = new JSONFormatter();
+
+greeting.accept(htmlFormatter);
+goodbye.accept(jsonFormatter);
+```
 
 ## Liskov Substitution Principle (LSP)
 
