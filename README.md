@@ -183,10 +183,73 @@ Originally stated as:
 > Subtype Requirement: Let ϕ(x) be a property provable about objects x of type T. Then ϕ(y) should be true for objects y of type S where S is a subtype of T.[^3]
 [^3]: Barbara Liskov, Jeanette Wing. (1994). *A behavioral notion of subtyping.*
 
-In other words:
+More clearly:
 > Functions that use pointers or references to base classes must be able to use objects of derived classes without knowing it.
 
-In other words, all subclasses should use the same interface in order to be able to interchange different realizations of a component. But not only that. Any function arguments and returns should always stay the same for any uses of a class family.
+In other words, all subclasses should use the same interface in order to be able to interchange different realizations of a component. But not only that  any function arguments and returns should always be the same for any uses of a class family.
+
+Example:
+```
+interface Communication {
+  greet: () => string;
+  introduce: () => string;
+  goodbye: () => string;
+}
+
+class EnglishSpeech implements Communication {
+  greet(): string {
+    return '👨 Hello!';
+  }
+  
+  introduce(): string {
+    return 'My name is Georgy Mishurovsky. I'm a web developer 👨‍💻 (also an MD 👨‍⚕️!). My tech stack includes JS, TS, Vue and NodeJS. I can also perform data analysis in R and Python.';
+  }
+  
+  goodbye(): string {
+    return 'See you soon, bye! 👋';
+  }
+}
+
+class RobotSpeech implements Communication {
+  greet(): string {
+    return '🤖 H3ll0!';
+  }
+  
+  introduce(): string {
+    return 'My n4m3 12 630r6y M12hur0v2ky. 1'm 4 w38 d3v3l093r 👨‍💻 (4l20 4n MD 👨‍⚕️!). My 73ch 274ck 1nclud32 j2, 72, vu3 4nd n0d3j2. 1 c4n 4l20 93rf0rm d474 4n4ly212 1n r 4nd 9y7h0n.';
+  }
+  
+  goodbye(): string {
+    return '233 y0u 200n, 8y3! 👋'
+  }
+}
+
+class Polyglot {
+  private _speechSource?: Communication;
+  
+  constructor(speechSource: Communication) {
+    this.speechSource = speechSource;
+  }
+  
+  set speechSource(speechSource: Communication) {
+    this._speechSource = speechSource;
+  }
+  
+  speak(): string {
+    if (!this.speechSource) return '';
+    return [this.speechSource.greet(), this.speechSource.introduce(), this.speechSource.goodbye()].join(' ');
+  }
+}
+
+const polyglot = new Polyglot();
+polyglot.speak(); // ''
+
+polyglot.speechSource = new EnglishSpeech();
+polyglot.speak(); // '👨 Hello! My name is Georgy Mishurovsky. I'm a web developer 👨‍💻 (also an MD 👨‍⚕️!). My tech stack includes JS, TS, Vue and NodeJS. I can also perform data analysis in R and Python. See you soon, bye! 👋'
+
+polyglot.speechSource = new RobotSpeech();
+polyglot.speak(); // '🤖 H3ll0! My n4m3 12 630r6y M12hur0v2ky. 1'm 4 w38 d3v3l093r 👨‍💻 (4l20 4n MD 👨‍⚕️!). My 73ch 274ck 1nclud32 j2, 72, vu3 4nd n0d3j2. 1 c4n 4l20 93rf0rm d474 4n4ly212 1n r 4nd 9y7h0n. 233 y0u 200n, 8y3! 👋'
+```
 
 
 ## Interface Segregation Principle (ISP)
