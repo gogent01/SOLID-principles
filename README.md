@@ -258,7 +258,7 @@ Originally stated as:
 > No client should be forced to depend on methods it does not use.[^4]
 [^4]: Robert Martin
 
-Stated in other words, one should not extend existing interfaces with new methods. Instead, one should create new interface and to implement both of them in new classes, if required. Thus the classes using only the implementation of original interface would not depend on methods they do not use.
+In other words, one should not extend existing *interfaces* with new methods. Instead, one should create new interface and to implement both of them in new classes, if required. Thus the classes using only the implementation of original interface would not depend on methods they do not use.
 
 *Let no components depend on methods they do not use.*
 
@@ -356,18 +356,91 @@ class CanonPrinterAndCopyingMachine implements Printer, CopyingMachine {
 
 ## Dependency Inversion Principle (DIP)
 
+Originally stated as:
+> High-level modules should not import anything from low-level modules. Both should depend on abstractions (e.g. interfaces).[^5]
+[^5]: Robert Martin. (2003). *Agile Software Development, Principles, Patterns, and Practices.*
+
+In other words, high-level modules rely on abstractions and low-level modules implement the abstractions. Higher-level modules should call methods and use properties of interfaces, which are implemented by lower-level modules. Following this principle allows for an adherence to all other SOLID principles:
+- SRP — by promotions of concerns separation. Higher-level modules provide more abstract interface and lower-level modules cover the details.
+- OCP — higher-level modules stay closed (as their code is not changed), but algoritms of an application are open to changes (through using different lower-level implementations of same interfaces).
+- LSP — as higher-level modules rely on interfaces, it gets easy to follow LSP: all different implementations of lower-level modules rely on same interface.
+- ISP — DIP promotes creation of granular interfaces, defining limited functionality. Higher-level modules rely on properties and methods they only need and lower-level modules implement only properties and methods required by them.
+
+DIP usually is implemented in code using *dependency injections (DIs)*, which means passing complex class instance variables in its constructor or by useing setter methods. Thus higher-level modules do not import any lower-level ones in their code. More on DI topic is written below.
+
+An example of DIP:
+```
+interface Communicator {
+  sendMessage(message: string): void;
+}
+
+class MobilePhone implements Communicator {
+  sendMessage(message: string): void {
+    console.log(`Sending SMS with message: ${message}`);
+  }
+  
+  // other methods and properties
+}
+
+class PersonalComputer implements Communicator {
+  sendMessage(message: string): void {
+    console.log(`Sending an email with message: ${message}`);
+  }
+  
+  // other methods and properties
+}
+
+class PostPigeon implements Communicator {
+  sendMessage(message: string): void {
+    console.log(`Sending a pigeon with letter: ${message}`);
+  }
+  
+  // other methods and properties
+}
+
+class ProjectManager {
+  communicationDevice: Communicator;
+
+  constructor(communicationDevice: Communicator) {
+    this.communicationDevice = communicationDevice;
+  }
+  
+  switchDevice(communicationDevice: Communicator) {
+    this.communicationDevice = communicationDevice;
+  }
+  
+  sendZoomCallInvitation(): void {
+    const invitation = 'The next meeting is scheduled for tomorrow at 11:00';
+    this.communicationDevice.sendMessage(invitation);
+  }
+}
+
+const smartphone = new MobilePhone();
+const computer = new PersonalComputer();
+const pigeon = new PostPigeon();
+
+const alex = new ProjectManager(smartphone);
+alex.sendZoomCallInvitation();
+
+alex.switchDevice(computer);
+alex.sendZoomCallInvitation();
+
+alex.switchDevice(pigeon);
+alex.sendZoomCallInvitation();
+```
+
 
 # Other stuff
 
 ## Dependency injection (DI)
 
-Dependency injection simply means passing (complex) instance variables (IV) to a class constructor or to a setter method. The idea brings three benefits:
-1. It allows to change various interface implementations of an IV without having to modify a class code.
-2. It allows to interchange IV implementations after a creation of a class instance (if setter methods are used).
-3. It allows to easily mock IV data during testing — by simply passing the desired IV implementation, again, without any changes to the class.
-- Additionally, DI follows OCP (the class becomes open to modifications with different IV implementations) and promotes LSP (by requiring a common interface for all possible IV classes).
+Dependency injection simply means passing (complex) instance variables to a class constructor or to a setter method. The idea brings three benefits:
+1. It allows to change various interface implementations of an instance variable without a need to modify the class code.
+2. It allows to change instance variable implementations after creation of a class instance (if setter methods are used).
+3. It allows to easily mock instance variable data during testing — by simply passing the desired IV implementation (again, without any changes to the class).
+- Additionally, DI follows OCP (the class becomes open to modifications with different IV implementations while staying closed as its code is not changed) and promotes LSP (by requiring a common interface for all possible IV classes).
 
-Below is a simple example of dependency injection. Note that without DI changing tires or engine in car whould require creating a totally new car!
+Below is a simple example of dependency injection. Note that changing tires or engine in car without DI whould require creating a totally new car!
 ```
 class Car {
   engine: Engine;
