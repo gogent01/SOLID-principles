@@ -429,10 +429,26 @@ alex.switchDevice(pigeon);
 alex.sendZoomCallInvitation();
 ```
 
+# Other Stuff
 
-# Other stuff
+## Coupling and Cohesion
 
-## Dependency injection (DI)
+Coupling shows relationships between modules. Low (loose) coupling means low number of dependencies and high (tight) coupling means high number of dependencies on other modules. The lower coupling is, the better.
+
+Cohesion shows relationships between components inside a module. Low cohesion means high diversity in purpose of module's components and high cohesion means that all components in a module have a single purpose. The higher cohesion is, the better.
+
+Ways to achieve low coupling:
+- modules should be small enough
+- modules should serve single purpose (high cohesion, SRP)
+- higher-level modules should depend on abstractions (DIP, DI)
+- use an event-driven architecture, so modules do not call each others' methods directly
+
+Ways to achieve high cohesion:
+- thorough problem decomposition into small problems
+- modules should be small enough
+- modules should serve single purpose (high cohesion, SRP)
+
+## Dependency Injection (DI)
 
 Dependency injection simply means passing (complex) instance variables to a class constructor or to a setter method. The idea brings three benefits:
 1. It allows to change various interface implementations of an instance variable without a need to modify the class code.
